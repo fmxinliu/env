@@ -1,0 +1,51 @@
+id: 1-5.0.r5/0
+type: file
+count: 0
+text: 3 0 239 222 d417d2e47909f08cd83bf8f578c883a1 0f75db74f6e7126405d33a81cf87179cb8e8fe79 4-5/_3
+cpath: /trunk/1.txt
+copyroot: 0 /
+
+PLAIN
+K 5
+1.txt
+V 15
+file 1-5.0.r5/0
+END
+ENDREP
+id: 3-4.0.r5/217
+type: dir
+pred: 3-4.0.r4/0
+count: 1
+text: 5 169 35 35 53af2450c01b5062c147b69f20bd3e5f
+cpath: /trunk
+copyroot: 0 /
+
+PLAIN
+K 8
+branches
+V 15
+dir 0-4.0.r4/63
+K 4
+tags
+V 16
+dir 2-4.0.r4/130
+K 5
+trunk
+V 16
+dir 3-4.0.r5/217
+END
+ENDREP
+id: 0.0.r5/464
+type: dir
+pred: 0.0.r4/339
+count: 5
+text: 5 350 101 101 9fe3552a950568dd5336cdd485c01e23
+cpath: /
+copyroot: 0 /
+
+_1.0.t4-5 add-file true false /trunk/1.txt
+
+0-1.0.r3/259 delete-file false false /1.txt
+
+
+464 592
