@@ -50,7 +50,7 @@ service iptables restart
 
 #### 8.在客户机上，测试端口状态
 ```
-telnet xxx.xxx.xxx.xxx 8080
+telnet 192.168.244.250 8080
 ```
 
 #### 9.关闭服务

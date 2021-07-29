@@ -22,11 +22,11 @@ svnadmin create /opt/svn/test
 ```
 
 #### 5.配置并启动服务：两种方式任选其一
-- **单库模式**，访问方式：*svn://xxx.xxx.xxx.xxx:3690*
+- **单库模式**，访问方式：*svn://192.168.244.250:3690*
 ```sh
 svnserve -d -r /opt/svn/test --listen-port 3690
 ```
--  **多库模式**，访问方式：*svn://xxx.xxx.xxx.xxx:3690/test*
+-  **多库模式**，访问方式：*svn://192.168.244.250:3690/test*
 ```sh
 svnserve -d -r /opt/svn      --listen-port 3690
 ```
@@ -52,7 +52,7 @@ service iptables restart
 ```
 #### 8.在客户机上，测试端口状态
 ```
-telnet xxx.xxx.xxx.xxx 3690
+telnet 192.168.244.250 3690
 ```
 
 #### 9.关闭服务
