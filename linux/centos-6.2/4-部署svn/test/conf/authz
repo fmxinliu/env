@@ -39,7 +39,7 @@ dev_group = dev
 @admin_group = rw
 @user_group = r
 @dev_group = r
-svnuser = r
+svnuser = rw
 * =
 
 [test:/]

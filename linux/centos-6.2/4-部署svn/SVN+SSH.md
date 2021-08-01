@@ -115,5 +115,5 @@ svn ci -m "linux ssh login"
 - 输入：exit，退出
 
 #### 4. 使用TortoiseSVN，进行开发
-- `TortoiseSVN`->`Settings`->`Network`->`SSH`，配置SSH Client：`"C:\Program Files\TortoiseSVN\bin\TortoisePlink.exe" -l svnuser -pw 123`
-- `SVN Checkout...`：svn+ssh://svnuser@192.168.244.250:3690/opt/svn/test/trunk
+- *TortoiseSVN*->*Settings*->*Network*->*SSH*，配置*SSH Client*：`"C:\Program Files\TortoiseSVN\bin\TortoisePlink.exe" -l svnuser -pw 123`
+- *SVN Checkout...*：`svn+ssh://svnuser@192.168.244.250:3690/opt/svn/test/trunk`
