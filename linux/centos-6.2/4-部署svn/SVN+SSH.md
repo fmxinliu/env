@@ -43,7 +43,8 @@ echo dev | passwd --stdin dev
 ```sh
 su dev
 cd
-ssh-keygen -t rsa -b 1024 -C "dev"
+ssh-keygen -t rsa -b 1024 -C "developer"
+#ssh-copy-id svnuser@192.168.244.250
 ```
 
 #### 3. 在svnuser端，加入dev生成的ssh公钥
@@ -88,7 +89,31 @@ ssh = /usr/bin/ssh -l svn -i /home/dev/.subversion/id_rsa_dev
 ```sh
 svn co svn+ssh://svnuser@192.168.244.250/test/trunk test
 cd test
-vi changelog
-svn add changelog
+echo "# linux ssh login" >> Changelog.txt
+svn add Changelog.txt
 svn ci -m "linux ssh login"
 ```
+
+### 三、windows客户端配置
+在windows环境下，svn+ssh方式需要用到三个软件：`puttygen.exe`, `putty.exe`, `TortoiseSVN`
+[下载地址](https://pan.baidu.com/disk/main?from=oldversion#/index?category=all&path=%2Fpackages%2Flinux%2Fcentos-6.2%2Fsvn)
+
+#### 1. 使用WinScp，将ssh私钥拷贝到windows
+- 路径：`/home/dev/.subversion/id_rsa_dev`
+
+
+#### 2. 使用puttygen.exe，将ssh私钥保存为ppk文件
+- 点击 *Load*，选中：`id_rsa_dev`
+- 点击 *Save private key*，输入文件名：`id_rsa_dev.ppk`
+
+#### 3. 使用putty.exe，配置session
+- `Connection`->`Data`：svnuser
+- `Connection`->`SSH`->`Auth`：选中id_rsa_dev.ppk
+- `Session`->`Host Name`：192.168.244.250
+- `Session`->`Saved Sessions`：192.168.244.250，点保存
+- 点击Open，输入密码：123
+- 输入：exit，退出
+
+#### 4. 使用TortoiseSVN，进行开发
+- `TortoiseSVN`->`Settings`->`Network`->`SSH`，配置SSH Client：`"C:\Program Files\TortoiseSVN\bin\TortoisePlink.exe" -l svnuser -pw 123`
+- `SVN Checkout...`：svn+ssh://svnuser@192.168.244.250:3690/opt/svn/test/trunk
