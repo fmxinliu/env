@@ -31,6 +31,8 @@
 # @harry_and_sally = rw
 # * = r
 
+ssh_group = dev1, dev2
+
 admin_group = admin
 user_group = user
 dev_group = dev
@@ -39,12 +41,11 @@ dev_group = dev
 @admin_group = rw
 @user_group = r
 @dev_group = r
-svnuser = rw
 * =
 
 [test:/]
 @admin_group = r
 @user_group = r
 @dev_group = rw
-svnuser = rw
+@ssh_group = rw
 * =
