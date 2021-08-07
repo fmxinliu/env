@@ -31,7 +31,7 @@
 # @harry_and_sally = rw
 # * = r
 
-ssh_group = dev1, dev2
+ssh_group = dev1, dev2, dev3, dev4
 
 admin_group = admin
 user_group = user

@@ -26,7 +26,7 @@ vim /opt/svn/test/conf/authz
 
 ```
 [groups]
-ssh_group = dev1, dev2
+ssh_group = dev1, dev2, dev3, dev4
 
 [test:/]
 @ssh_group = rw
@@ -140,3 +140,81 @@ cd test
 echo "- ssh login: os=linux,user_id=os_dev2,svn_id=dev2" >> changelog.txt
 svn ci -m "update changelog.txt"
 ```
+
+#### 3. Windows客户端配置
+
+##### 1) 新建开发账号
+
+|   系统用户    |       说明       |
+| :-------: | :------------: |
+| `os_dev3` | *windows* 开发账号 |
+| `os_dev4` | *windows* 开发账号 |
+
+##### 2)  配置ssh
+
+|     系统用户     |       ssh私钥       |                ssh公钥                 | 映射svn账号 |
+| :----------: | :---------------: | :----------------------------------: | :-----: |
+| `os_svnuser` |         -         |                  -                   |    -    |
+|  `os_dev3`   | `C:\ssh\id_rsa_3` | `/home/os_svnuser/.ssh/id_rsa_3.pub` | `dev3`  |
+|  `os_dev4`   | `C:\ssh\id_rsa_4` | `/home/os_svnuser/.ssh/id_rsa_4.pub` | `dev4`  |
+
+- 创建 ssh 密钥
+
+```sh
+su -
+ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa_3 -C "os_dev3@192.168.244.250"
+ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa_4 -C "os_dev4@192.168.244.250"
+```
+
+- 拷贝 *ssh* 公钥到 *os_svnuser*
+
+```sh
+mkdir /home/os_svnuser/.ssh
+cp -p ~/.ssh/id_rsa_3.pub /home/os_svnuser/.ssh/id_rsa_3.pub
+cp -p ~/.ssh/id_rsa_4.pub /home/os_svnuser/.ssh/id_rsa_4.pub
+```
+
+- 生成 *authorized_keys*
+
+```sh
+cd /home/os_svnuser/.ssh
+
+echo -n 'command="/usr/bin/svnserve -t -r /opt/svn --listen-port 3690 --tunnel-user=dev3",' >> authorized_keys
+echo -n 'no-port-forwarding,no-pty,no-agent-forwarding,no-X11-forwarding ' >> authorized_keys
+cat id_rsa_3.pub >> authorized_keys
+
+echo -n 'command="/usr/bin/svnserve -t -r /opt/svn --listen-port 3690 --tunnel-user=dev4",' >> authorized_keys
+echo -n 'no-port-forwarding,no-pty,no-agent-forwarding,no-X11-forwarding ' >> authorized_keys
+cat id_rsa_4.pub >> authorized_keys
+```
+
+- 修改 *ssh* 目录权限
+
+```sh
+chmod 700 /home/os_svnuser/.ssh
+chmod 600 /home/os_svnuser/.ssh/authorized_keys
+chown -R os_svnuser:os_svnuser /home/os_svnuser/.ssh
+```
+
+- 使用 *WinScp*，将 *ssh* 私钥拷贝到 *windows*
+  - `/root/.ssh/id_rsa_3` -> `os_dev3` : `C:\ssh\id_rsa_3`
+  - `/root/.ssh/id_rsa_4` -> `os_dev4` : `C:\ssh\id_rsa_4`
+
+##### 3)  配置TortoiseSVN *[下载地址](https://pan.baidu.com/disk/main?from=oldversion#/index?category=all&path=%2Fpackages%2Flinux%2Fcentos-6.2%2Fsvn)*
+
+| 软件名 |         说明          |
+| :--------------------------------------: | :-----------------: |
+|              `puttygen.exe`              | *转换 ssh* 私钥为 *.ppk* |
+|              `pageant.exe`               |    保存 *.ppk* 到内存    |
+|              `TortoiseSVN`               |    访问 *svn* 代码库     |
+
+这里以 `os_dev3` 为例说明：
+- 使用**puttygen.exe**，转换私钥格式
+  - 点击 *Load*，选中：`C:\ssh\id_rsa_3`
+  - 点击 *Save private key*，输入文件名：`id_rsa_3.ppk`
+
+- 使用**pageant.exe**，添加私钥
+  - 点击 *Add Key*，添加：`id_rsa_3.ppk`
+
+- 使用**TortoiseSVN.exe**，测试操作代码库
+  - 输入 *URL*：`svn+ssh://os_svnuser@192.168.244.250/test/trunk`
