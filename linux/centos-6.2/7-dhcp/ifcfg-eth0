@@ -1,0 +1,8 @@
+DEVICE=eth0              # 网卡名称
+HWADDR=00:0c:29:b5:6d:58 # MAC地址
+NM_CONTROLLED=yes
+TYPE=Ethernet
+IPV6INIT=no
+USERCTL=no
+ONBOOT=yes               # 开机启动
+BOOTPROTO=dhcp           # 动态ip
