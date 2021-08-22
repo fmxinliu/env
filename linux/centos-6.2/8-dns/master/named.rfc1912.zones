@@ -1,0 +1,28 @@
+// named.rfc1912.zones:
+//
+// Provided by Red Hat caching-nameserver package 
+//
+// ISC BIND named zone configuration for zones recommended by
+// RFC 1912 section 4.1 : localhost TLDs and address zones
+// and http://www.ietf.org/internet-drafts/draft-ietf-dnsop-default-local-zones-02.txt
+// (c)2007 R W Franks
+// 
+// See /usr/share/doc/bind*/sample/ for example named configuration files.
+//
+
+
+// 正向解析
+zone "xdl.com" IN {
+	type master;              // 主dns
+	file "xdl.localhost";     // 解析文件
+	allow-update { none; };
+};
+
+
+// 反向解析
+zone "244.168.192.in-addr.arpa" IN {
+	type master; 
+	file "xdl.empty";
+	allow-update { none; };
+};
+

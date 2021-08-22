@@ -1,0 +1,12 @@
+$TTL 1D
+@	IN SOA	xdl.com. rname.invalid. (
+					0	; serial
+					1D	; refresh
+					1H	; retry
+					1W	; expire
+					3H )	; minimum
+	NS	dns.xdl.com.
+dns	A	192.168.244.250
+www	A	192.168.244.251
+ftp	CNAME	www
+*	A	192.168.244.252

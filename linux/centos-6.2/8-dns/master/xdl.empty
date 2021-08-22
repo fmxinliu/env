@@ -1,0 +1,10 @@
+$TTL 3H
+@	IN SOA	xdl.com. rname.invalid. (
+					0	; serial
+					1D	; refresh
+					1H	; retry
+					1W	; expire
+					3H )	; minimum
+	NS	dns.xdl.com.
+250	PTR	dns.xdl.com.
+251	PTR	www.xdl.com.

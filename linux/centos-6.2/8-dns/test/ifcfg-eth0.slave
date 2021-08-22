@@ -1,0 +1,12 @@
+DEVICE=eth0              # 网卡名称
+HWADDR=00:0c:29:b5:6d:58 # MAC地址
+NM_CONTROLLED=yes
+TYPE=Ethernet
+IPV6INIT=no
+USERCTL=no
+ONBOOT=yes               # 开机启动
+BOOTPROTO=none           # 静态ip
+IPADDR=192.168.244.250   # ip地址
+NETMASK=255.255.255.0    # 子网掩码
+DNS1=192.168.244.251     # 从dns
+GATEWAY=192.168.244.2    # 网关
