@@ -20,7 +20,7 @@ cd nginx-1.18.0
 make && make install
 ```
 
-#### 2. 配置服务
+#### 2. 配置
 
 ```sh
 # 配置环境变量
@@ -48,6 +48,16 @@ service iptables restart
 # 浏览器访问： http://192.168.244.250/
 ```
 
+#### 3. 重启
+
+```sh
+# 停止 nginx
+nginx -s stop
+
+# 启动 nginx
+nginx
+```
+
 ###  PHP
 
 #### 1. [安装](https://pan.baidu.com/disk/main?errmsg=Auth+Login+Sucess&errno=0&from=oldversion&ssnerror=0&#/index?category=all&path=%2Fpackages%2Flinux%2Fcentos-6.2%2Fphp)
@@ -55,10 +65,9 @@ service iptables restart
 ```sh
 # 1.安装openssl-1.0.1
 tar -zxvf openssl-1.0.1g.tar.gz
-cd openssl-1.0.1g
-./config --prefix=/usr/local/openssl-1.0.1
+./config --prefix=/usr/local/openssl
 make && make install
-/usr/local/openssl-1.0.1/bin/openssl version
+/usr/local/openssl/bin/openssl version  # 查看版本号
 
 # 2.安装gdbm
 yum -y install gdbm-devel
@@ -74,20 +83,35 @@ cmake=cmake-3.21.1-linux-x86_64/bin/cmake
 $cmake ..
 make && make install
 
-# 4.configure: error: off_t undefined; check your library configuration
+# 4.安装libxml2-2.9.8
+tar -zxvf libxml.tar.gz
+cd libxml2-2.9.8
+./configure --prefix=/usr/local/libxml2 --exec-prefix=/usr/local/libxml2 --without-python
+make && make install
+cd /usr/local/libxml2/bin
+xml2-config --version
+
+# 5.configure: error: off_t undefined; check your library configuration
 echo /usr/local/lib64 >> /etc/ld.so.conf
 echo /usr/local/lib   >> /etc/ld.so.conf
 echo /usr/lib         >> /etc/ld.so.conf
 echo /usr/lib64       >> /etc/ld.so.conf
 ldconfig -v
 
-# 5.安装php-7.3.2
+# 6.安装 autoconf
+tar -zxvf autoconf-2.68
+ cd autoconf-2.68
+./configure && make && make install
+
+# 7.安装php-7.3.2
 tar -zxvf php-7.3.2.tar.gz
 cd php-7.3.2
-./configure --prefix=/usr/local/php \
---with-openssl-dir=/usr/local/openssl-1.0.1 \
---with-curl --with-mysqli --with-pdo-mysql --enable-fpm --enable-mbstring --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib-dir --with-libxml-dir --enable-bcmath --enable-shmop --enable-sysvsem --enable-inline-optimization --with-curlwrappers --enable-mbregex --with-mcrypt --with-mhash --with-gd --enable-gd-native-ttf --enable-pcntl --enable-sockets --with-xmlrpc --enable-zip --enable-ftp --with-bz2 --with-ttf --with-xsl --with-gettext --with-pear --enable-calendar --enable-exif --enable-magic-quotes --with-gdbm
+# 1. config
+./configure --prefix=/usr/local/php --with-openssl-dir=/usr/local/openssl --with-openssl --with-mysqli --with-curl --with-pdo-mysql --enable-fpm  --enable-mbstring
+# 2. install
 make && make install
+# 3. php-extension
+/usr/local/php/bin/php -m
 ```
 
 #### 2. 配置
@@ -95,19 +119,19 @@ make && make install
 ```sh
 # 创建快捷方式
 ln -s /usr/local/php/bin/php /usr/local/bin/php
-
+ 
 # ERROR: failed to open configuration file '/usr/local/php/etc/php-fpm.conf': No such file or directory (2)
 cp -p /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf
 
 # ERROR: No pool defined. at least one pool section must be specified in config file
-cp -p /usr/local/php/etc/php-fpm.d/www.conf.default /usr/local/php/etc/php-fpm.d/www.conf.conf
+cp -p /usr/local/php/etc/php-fpm.d/www.conf.default /usr/local/php/etc/php-fpm.d/www.conf
 
-# 启动 nginx
+# 启动 php-fpm
 /usr/local/php/sbin/php-fpm
 
 # 查看 php-fpm 监听端口
 netstat -lntp | grep php-fpm
-# www.conf.conf -> listen = 127.0.0.1:9000
+# www.conf -> listen = 127.0.0.1:9000
 
 # 开放 9000 端口
 vi /etc/sysconfig/iptables
@@ -115,3 +139,59 @@ vi /etc/sysconfig/iptables
 service iptables restart
 ```
 
+#### 3. 重启
+
+```sh
+# 查看进程
+ps aux | grep php-fpm | grep -v grep
+
+# 停止
+kill -9 xxx xxx xxx
+
+# 启动 php-fpm
+/usr/local/php/sbin/php-fpm
+```
+
+### Phabricator
+
+#### 1. [安装](https://pan.baidu.com/disk/main?errmsg=Auth+Login+Sucess&errno=0&from=oldversion&ssnerror=0&#/index?category=all&path=%2Fpackages%2Flinux%2Fcentos-6.2%2Fphabricator)
+
+```sh
+# 1.下载代码
+mkdir /usr/local/pha
+cd /usr/local/pha
+unzip arcanist-master.zip
+unzip phabricator-master.zip
+
+# 2.添加可执行权限
+chmod 755 phabricator/bin/*
+chmod -R 755 phabricator/scripts/*
+```
+
+#### 2. 配置
+
+```sh
+# 1.初始化mysql数据库
+cd phabricator/bin
+echo $(cat config)' $@' > config
+./config set mysql.host '192.168.244.250:3306'
+./config set mysql.port 3306
+./config set mysql.user root
+./config set mysql.pass 123456
+echo $(cat storage)' $@' > storage
+./storage upgrade
+
+# 2.配置nginx
+cp nginx.conf /usr/local/nginx/conf/nginx.conf
+
+# 3.配置basruri
+./config set phabricator.base-uri 'http://192.168.244.250'
+
+# 4.启动php-fpm
+/usr/local/php/sbin/php-fpm
+
+# 5.启动nginx
+nginx
+
+# 浏览器访问： http://192.168.244.250/
+```
