@@ -13,22 +13,22 @@ svn --version
 
 #### 3. 创建库根目录
 ```sh
-mkdir -p /opt/svn
+mkdir -p /opt/svnrepo
 ```
 
 #### 4. 创建测试代码库
 ```sh
-svnadmin create /opt/svn/test
+svnadmin create /opt/svnrepo/demo
 ```
 
 #### 5.配置并启动服务：两种方式任选其一
 - **单库模式**，访问方式：*svn://192.168.244.250:3690*
 ```sh
-svnserve -d -r /opt/svn/test --listen-port 3690
+svnserve -d -r /opt/svnrepo/demo --listen-port 3690
 ```
--  **多库模式**，访问方式：*svn://192.168.244.250:3690/test*
+-  **多库模式**，访问方式：*svn://192.168.244.250:3690/demo*
 ```sh
-svnserve -d -r /opt/svn      --listen-port 3690
+svnserve -d -r /opt/svnrepo      --listen-port 3690
 ```
 
 #### 6.查看服务
@@ -62,5 +62,5 @@ killall svnserve
 
 #### 10.配置服务开机自启动
 ```sh
-echo "/usr/bin/svnserve -d -r /opt/svn --listen-port 3690" >> /etc/rc.d/rc.local
+echo "/usr/bin/svnserve -d -r /opt/svnrepo --listen-port 3690" >> /etc/rc.d/rc.local
 ```

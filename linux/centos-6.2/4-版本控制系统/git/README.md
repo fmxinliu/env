@@ -4,11 +4,16 @@
 
 ### 1) 安装软件包
 
-| 软件包  |        命令         |
-| :--: | :---------------: |
-| git  | yum install -y it |
+| 软件包  |         命令         |
+| :--: | :----------------: |
+| git  | yum install -y git |
 
-### 2) 新建git系统账号
+### 2) 新建demo库
+```sh
+git init --bare /opt/gitrepo/demo.git  # 裸仓库
+```
+
+### 3) 新建git系统账号
 
 |     系统账号     | 登录密码 |      说明       |
 | :----------: | :--: | :-----------: |
@@ -25,23 +30,16 @@ echo 000 | passwd --stdin os_gituser
 
 ```sh
 groupadd gitgroup
-chgrp -R gitgroup /opt/git/
-chmod g+w -R /opt/git/
-chmod o=  -R /opt/git/
+chgrp -R gitgroup /opt/gitrepo/
+chmod g+w -R /opt/gitrepo/
+chmod o=  -R /opt/gitrepo/
 ```
 
 - 将 *os_gituser* 加入 *gitgroup*
 
 ```sh
-usermod -G gitgroup os_gituser
+usermod -a -G gitgroup os_gituser
 id os_gituser
-```
-
-- 禁用 *os_gituser* 登录
-
-```sh
-# 找到这句 os_gituser:x:507:508::/home/os_gituser:/bin/bash
-# 改为：   os_gituser:x:507:508::/home/os_gituser:/bin/git-shell
 ```
 
 ## 二、客户端配置
@@ -83,8 +81,8 @@ su - os_dev2
 ssh-keygen -t rsa -b 2048 -C "os_dev2@192.168.244.250"
 
 # windows 系统使用 Git Bash
-ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa_3 -C "os_dev3@192.168.244.250"
-ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa_4 -C "os_dev4@192.168.244.250"
+ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa_3 -C "os_dev3@192.168.244.128"
+ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa_4 -C "os_dev4@192.168.244.128"
 ```
 
 - 拷贝 *ssh* 公钥
@@ -95,7 +93,7 @@ mkdir /home/os_gituser/.ssh
 cp -p /home/os_dev1/.ssh/id_rsa.pub /home/os_gituser/.ssh/id_rsa_1.pub
 cp -p /home/os_dev2/.ssh/id_rsa.pub /home/os_gituser/.ssh/id_rsa_2.pub
 
-# windows 系统使用 WinScp 上传 id_rsa_3.pub、id_rsa_3.pub
+# windows 系统使用 WinScp 上传 id_rsa_3.pub、id_rsa_4.pub
 ```
 
 - 生成 *authorized_keys*
@@ -129,45 +127,46 @@ chown -R os_gituser:os_gituser /home/os_gituser/.ssh
 ```sh
 # dev1提交
 su - os_dev1
-git clone git+ssh://os_gituser@192.168.244.250/opt/git/gittest
 git config --global user.name "os_dev1"
 git config --global user.email "os_dev1@192.168.244.250"
+git clone git+ssh://os_gituser@192.168.244.250/opt/gitrepo/demo.git gittest
 cd gittest
-echo "- ssh login: os=linux,user_id=os_dev1,svn_id=dev1" >> changelog.txt
+echo "- ssh login: os=linux,user_id=os_dev1" >> changelog.txt
 git add changelog.txt
 git commit -m "add changelog.txt"
 git push origin master
 
 # dev2提交
 su - os_dev2
-git clone git+ssh://os_gituser@192.168.244.250/opt/git/gittest
 git config --global user.name "os_dev2"
 git config --global user.email "os_dev2@192.168.244.250"
+git clone git+ssh://os_gituser@192.168.244.250/opt/gitrepo/demo.git gittest
 cd gittest
-echo "- ssh login: os=linux,user_id=os_dev2,svn_id=dev2" >> changelog.txt
+echo "- ssh login: os=linux,user_id=os_dev2" >> changelog.txt
 git add changelog.txt
 git commit -m "update changelog.txt"
 git push origin master
 
-# 查看提交记录
-git log --oneline origin/master
-
 # dev3提交
-git clone git+ssh://os_gituser@192.168.244.250/opt/git/gittest
+git config --global user.name "os_dev3"
+git config --global user.email "os_dev3@192.168.244.128"
+git clone git+ssh://os_gituser@192.168.244.250/opt/gitrepo/demo.git gittest
 cd gittest
-echo "- ssh login: os=windows,user_id=os_dev3,svn_id=dev3" >> changelog.txt
+echo "- ssh login: os=windows,user_id=os_dev3" >> changelog.txt
 git add changelog.txt
 git commit -m "update changelog.txt"
 git push origin master
 
 # dev4提交
-git clone git+ssh://os_gituser@192.168.244.250/opt/git/gittest
+git config --global user.name "os_dev4"
+git config --global user.email "os_dev4@192.168.244.128"
+git clone git+ssh://os_gituser@192.168.244.250/opt/gitrepo/demo.git gittest
 cd gittest
-echo "- ssh login: os=windows,user_id=os_dev4,svn_id=dev4" >> changelog.txt
+echo "- ssh login: os=windows,user_id=os_dev4" >> changelog.txt
 git add changelog.txt
 git commit -m "update changelog.txt"
 git push origin master
 
 # 查看提交记录
-git log --oneline origin/master
+git log origin/master
 ```
