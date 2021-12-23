@@ -107,7 +107,7 @@ tar -zxvf autoconf-2.68
 tar -zxvf php-7.3.2.tar.gz
 cd php-7.3.2
 # 1. config
-./configure --prefix=/usr/local/php --with-openssl-dir=/usr/local/openssl --with-openssl --with-mysqli --with-curl --with-pdo-mysql --enable-fpm  --enable-mbstring
+./configure --prefix=/usr/local/php --with-openssl-dir=/usr/local/openssl --with-openssl --with-mysqli --with-curl --with-pdo-mysql --with-ldap --enable-fpm --enable-mbstring --enable-pcntl --enable-sockets
 # 2. install
 make && make install
 # 3. php-extension
@@ -187,10 +187,20 @@ cp nginx.conf /usr/local/nginx/conf/nginx.conf
 # 3.配置basruri
 ./config set phabricator.base-uri 'http://192.168.244.250'
 
-# 4.启动php-fpm
+# 4.配置environment
+./config set environment.append-paths '["/usr/bin","/usr/libexec/git-core"]'
+
+# 5.配置mailers
+./config set cluster.mailers '[{"key":"stmp-mailer","type":"smtp","options":{"host":"smtp.163.com","port":994,"user":"??","password":"??","protocol":"ssl"}}]' # 邮箱地址+授权码
+./config set metamta.default-address ?? # 邮箱地址
+
+# 6.查看配置项
+cat /usr/local/pha/phabricator/conf/local/local.json
+
+# 7.启动php-fpm
 /usr/local/php/sbin/php-fpm
 
-# 5.启动nginx
+# 8.启动nginx
 nginx
 
 # 浏览器访问： http://192.168.244.250/
