@@ -1,0 +1,77 @@
+#!/bin/sh
+#
+# phd - this script starts and stops the phd daemon
+#
+# chkconfig:   - 1234 56
+# description: phabricator
+# processname: phd
+# config:      /usr/local/pha/phabricator/bin/phd
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ "$NETWORKING" = "no" ] && exit 0
+
+phd="/usr/local/pha/phabricator/bin/phd"
+prog=$(basename ${phd})
+dir=$(dirname ${phd})
+
+lockfile=/var/lock/subsys/phd
+
+start() {
+    [ -x ${phd} ] || exit 5
+    ./${prog} start
+    retval=$?
+    [ $retval -eq 0 ] && touch $lockfile
+    return $retval
+}
+
+stop() {
+    ./${prog} stop
+    retval=$?
+    [ $retval -eq 0 ] && rm -f $lockfile
+    return $retval
+}
+
+restart() {
+    stop
+    start
+}
+
+reload() {
+    ./${prog} reload
+    RETVAL=$?
+}
+
+rh_status() {
+    ./${prog} status
+}
+
+rh_status_q() {
+    rh_status >/dev/null 2>&1
+}
+
+log() {
+    ./${prog} log
+}
+
+
+cd $dir >/dev/null 2>&1
+
+case "$1" in
+    start|stop|restart|reload|log)
+        $1
+        ;;
+    status)
+        rh_status
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|reload|log}"
+        exit 2
+esac
+
+cd - >/dev/null 2>&1

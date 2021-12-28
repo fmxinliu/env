@@ -46,16 +46,29 @@ vi /etc/sysconfig/iptables
 service iptables restart
 
 # 浏览器访问： http://192.168.244.250/
+
+# 设置开机自启
 ```
 
-#### 3. 重启
+#### 3. 开机自启
 
 ```sh
-# 停止 nginx
-nginx -s stop
+cp nginx /etc/init.d/nginx
+chmod 755 /etc/init.d/nginx
+chkconfig --add nginx           # 添加系统服务,管理方式service nginx ??
+chkconfig --level 2345 nginx on # 设置开机启动,启动级别
+chkconfig --list nginx          # 查看开机启动配置信息
+```
 
-# 启动 nginx
+#### 4. 重启
+
+```sh
+# 方法1
+nginx -s stop
 nginx
+
+# 方法2
+service nginx restart
 ```
 
 ###  PHP
@@ -100,17 +113,27 @@ ldconfig -v
 
 # 6.安装 autoconf
 tar -zxvf autoconf-2.68
- cd autoconf-2.68
+cd autoconf-2.68
 ./configure && make && make install
 
 # 7.安装php-7.3.2
 tar -zxvf php-7.3.2.tar.gz
 cd php-7.3.2
-# 1. config
-./configure --prefix=/usr/local/php --with-openssl-dir=/usr/local/openssl --with-openssl --with-mysqli --with-curl --with-pdo-mysql --with-ldap --enable-fpm --enable-mbstring --enable-pcntl --enable-sockets
-# 2. install
+# (7.1)配置
+./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --with-openssl-dir=/usr/local/openssl --with-openssl --with-mysqli --with-curl --with-pdo-mysql --with-ldap --with-gd --enable-fpm --enable-mbstring --enable-pcntl --enable-sockets --enable-opcache --enable-zip
+# (7.2)编译安装
 make && make install
-# 3. php-extension
+# (7.3)拷贝配置文件php.ini
+cp php.ini-production /usr/local/php/etc/php.ini
+# (7.4).安装外部扩展apcu-5.1.16
+cd ext/apcu
+./configure --with-php-config=/usr/local/php/bin/php-config
+make && make install
+echo "extension=apcu.so" >> /usr/local/php/etc/php.ini
+echo "apc.enabled=on"    >> /usr/local/php/etc/php.ini
+echo "apc.shm_size=64M"  >> /usr/local/php/etc/php.ini
+echo "apc.enable_cli=on" >> /usr/local/php/etc/php.ini
+# (7.5)查看安装的扩展
 /usr/local/php/bin/php -m
 ```
 
@@ -118,7 +141,7 @@ make && make install
 
 ```sh
 # 创建快捷方式
-ln -s /usr/local/php/bin/php /usr/local/bin/php
+ln -s /usr/local/php/bin/php /usr/bin/php
  
 # ERROR: failed to open configuration file '/usr/local/php/etc/php-fpm.conf': No such file or directory (2)
 cp -p /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf
@@ -137,19 +160,35 @@ netstat -lntp | grep php-fpm
 vi /etc/sysconfig/iptables
 # -A INPUT -p tcp -m state --state NEW -m tcp --dport 9000 -j ACCEPT
 service iptables restart
+
+# 查看加载的配置文件
+php --ini
 ```
 
-#### 3. 重启
+#### 3. 开机自启
 
 ```sh
-# 查看进程
+# 设置pid
+vi /usr/local/php/etc/php-fpm.conf # ;pid = run/php-fpm.pid 取消注释
+
+# 注册服务
+cp php-fpm /etc/init.d/php-fpm
+chmod 755 /etc/init.d/php-fpm
+chkconfig --add php-fpm           # 添加系统服务,管理方式service php-fpm ??
+chkconfig --level 2345 php-fpm on # 设置开机启动,启动级别
+chkconfig --list php-fpm          # 查看开机启动配置信息
+```
+
+#### 4. 重启
+
+```sh
+# 方法1
 ps aux | grep php-fpm | grep -v grep
-
-# 停止
 kill -9 xxx xxx xxx
-
-# 启动 php-fpm
 /usr/local/php/sbin/php-fpm
+
+# 方法2
+service php-fpm restart
 ```
 
 ### Phabricator
@@ -198,10 +237,35 @@ cp nginx.conf /usr/local/nginx/conf/nginx.conf
 cat /usr/local/pha/phabricator/conf/local/local.json
 
 # 7.启动php-fpm
-/usr/local/php/sbin/php-fpm
+service php-fpm restart
 
 # 8.启动nginx
-nginx
+service nginx restart
+
+# 9.启动守护进程
+cd /usr/local/pha/phabricator/bin
+./phd restart
 
 # 浏览器访问： http://192.168.244.250/
+```
+
+#### 3. 开机自启
+
+```sh
+cp phd /etc/init.d/phd
+chmod 755 /etc/init.d/phd
+chkconfig --add phd           # 添加系统服务,管理方式service phd ??
+chkconfig --level 2345 phd on # 设置开机启动,启动级别
+chkconfig --list phd          # 查看开机启动配置信息
+```
+
+#### 4. 重启
+
+```sh
+# 方法1
+cd /usr/local/pha/phabricator/bin
+./phd restart
+
+# 方法2
+service phd restart
 ```
